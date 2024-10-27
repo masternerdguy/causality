@@ -5,30 +5,35 @@ import (
 	"fmt"
 )
 
-var arena = make([][]auto.Cell, ARENA_LENGTH)
-var arenaRender = make([][]auto.RenderCell, ARENA_LENGTH)
+var arena = make([][]*auto.Cell, ARENA_LENGTH)
+var arenaRender = make([][]*auto.RenderCell, ARENA_LENGTH)
 
 const ARENA_LENGTH = 25
-
-/**/
 
 func InitArena() {
 	// loop over rows
 	for x := 0; x < ARENA_LENGTH; x++ {
 		// init cells
-		arena[x] = make([]auto.Cell, ARENA_LENGTH)
-		arenaRender[x] = make([]auto.RenderCell, ARENA_LENGTH)
+		arena[x] = make([]*auto.Cell, ARENA_LENGTH)
+		arenaRender[x] = make([]*auto.RenderCell, ARENA_LENGTH)
 
 		// store global coordinates for convenient inspection
 		for y := 0; y < ARENA_LENGTH; y++ {
-			// arena
-			arena[x][y].G_X = x
-			arena[x][y].G_Y = y
+			// arena cell
+			arena[x][y] = &auto.Cell{
+				G_X: x,
+				G_Y: y,
+			}
 
-			// framebuffer
-			arenaRender[x][y].G_X = x
-			arenaRender[x][y].G_Y = y
-			arenaRender[x][y].G_S = "*"
+			// randomize arena cell flux
+			arena[x][y].Randomize()
+
+			// "framebuffer" display cell
+			arenaRender[x][y] = &auto.RenderCell{
+				G_X: x,
+				G_Y: y,
+				G_S: fmt.Sprintf("%d", arena[x][y].I_f),
+			}
 		}
 	}
 }
