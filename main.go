@@ -2,20 +2,16 @@ package main
 
 import (
 	"flux/arena"
-	"math/rand"
+	"flux/lib"
+	"fmt"
 	"runtime"
 	"time"
 )
 
-const RNG_SEED = 0
-
 // entry point
 func main() {
 	// single core
-	runtime.GOMAXPROCS(1)
-
-	// seed rng for consistent results
-	rand.Seed(RNG_SEED)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// initialize arena and framebuffer
 	arena.InitArena()
@@ -23,8 +19,26 @@ func main() {
 	// draw empty frame
 	arena.DrawFrame()
 
+	// wait
+	wait()
+}
+
+func wait() {
 	// don't exit
 	for {
+		// don't peg cpu and minimize interference with scheduling
 		time.Sleep(0)
+
+		// decrement sentinel value
+		lib.Sentinel--
+
+		// exit if underflowed - we are halted
+		if lib.Sentinel <= lib.SENTINEL_UNDERFLOW {
+			// notify user
+			fmt.Println("Sentinel value underflowed - program halted with above output!")
+
+			// exit
+			break
+		}
 	}
 }

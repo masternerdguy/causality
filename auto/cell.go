@@ -9,6 +9,9 @@ const FLUX_BOUNDARY = 1
 const FLUX_LOW = 0
 const FLUX_HIGH = 1
 
+// there's no point in exceeding the arena length in cycles - things should just be repeating by then
+const MAX_CYCLES = lib.ARENA_LENGTH
+
 type Cell struct {
 	// global x position used for initial setup and rendering only
 	G_X int
@@ -27,19 +30,18 @@ type Cell struct {
 
 	// internal flux state
 	i_f int
-}
 
-func (c *Cell) Randomize() {
-	// randomize internal flux to be over or under the boundary
-	//c.i_f = int((rand.Float32()-0.5)*2.5) + FLUX_BOUNDARY
-
-	c.i_f = 0
+	// internal cycle counter
+	i_c int
 }
 
 func (c *Cell) Listen() {
 	for {
 		// receive updates from causal past
 		v := <-c.Past
+
+		// increment cycle count
+		c.i_c++
 
 		// accumulate in internal state
 		c.i_f += v
@@ -78,6 +80,11 @@ func (c *Cell) Listen() {
 
 		// and upwards to the "framebuffer"
 		c.Render <- sv
+
+		// exit if cycle count exceeded
+		if c.i_c > MAX_CYCLES {
+			break
+		}
 	}
 }
 

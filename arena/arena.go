@@ -6,15 +6,13 @@ import (
 	"fmt"
 )
 
-var arena = make([][]*auto.Cell, ARENA_LENGTH)
-var arenaBuffer = make([][]*auto.RenderCell, ARENA_LENGTH)
-var arenaDraw = make([][]string, ARENA_LENGTH)
+var arena = make([][]*auto.Cell, lib.ARENA_LENGTH)
+var arenaBuffer = make([][]*auto.RenderCell, lib.ARENA_LENGTH)
+var arenaDraw = make([][]string, lib.ARENA_LENGTH)
 var arenaUpdate = make(chan lib.ArenaChange[int, int, string])
+var frameCounter int64 = 0
 
-const ARENA_LENGTH = 5
-
-// this program will eventually deadlock due to how go works - this just delays the inevitable long enough to be both useful and deterministic
-const PAST_CHANNEL_LENGTH = ARENA_LENGTH * ARENA_LENGTH * ARENA_LENGTH * ARENA_LENGTH
+const ARENA_AREA = lib.ARENA_LENGTH * lib.ARENA_LENGTH
 
 func InitArena() {
 	/* Cell and "framebuffer" setup */
@@ -23,14 +21,14 @@ func InitArena() {
 	arenaUpdate = make(chan lib.ArenaChange[int, int, string])
 
 	// loop over rows
-	for x := 0; x < ARENA_LENGTH; x++ {
+	for x := 0; x < lib.ARENA_LENGTH; x++ {
 		// init cells
-		arena[x] = make([]*auto.Cell, ARENA_LENGTH)
-		arenaBuffer[x] = make([]*auto.RenderCell, ARENA_LENGTH)
-		arenaDraw[x] = make([]string, ARENA_LENGTH)
+		arena[x] = make([]*auto.Cell, lib.ARENA_LENGTH)
+		arenaBuffer[x] = make([]*auto.RenderCell, lib.ARENA_LENGTH)
+		arenaDraw[x] = make([]string, lib.ARENA_LENGTH)
 
 		// loop over cells
-		for y := 0; y < ARENA_LENGTH; y++ {
+		for y := 0; y < lib.ARENA_LENGTH; y++ {
 			// arena cell
 			arena[x][y] = &auto.Cell{
 				// global coordinates used only for setup
@@ -38,14 +36,11 @@ func InitArena() {
 				G_Y: y,
 
 				// initialize channel for causal past
-				Past: make(chan int, PAST_CHANNEL_LENGTH),
+				Past: make(chan int, ARENA_AREA+1),
 
 				// initialize empty future
 				Future: make([]chan int, 0),
 			}
-
-			// randomize arena cell flux
-			arena[x][y].Randomize()
 
 			// "framebuffer" display cell
 			arenaBuffer[x][y] = &auto.RenderCell{
@@ -71,9 +66,9 @@ func InitArena() {
 	/* Causal connectivity setup */
 
 	// loop over rows
-	for x := 0; x < ARENA_LENGTH; x++ {
+	for x := 0; x < lib.ARENA_LENGTH; x++ {
 		// loop over cells
-		for y := 0; y < ARENA_LENGTH; y++ {
+		for y := 0; y < lib.ARENA_LENGTH; y++ {
 			// get causal future coordinates for this cell
 			ft := descendantCoordinates(x, y)
 
@@ -97,9 +92,9 @@ func InitArena() {
 	/* Default blank frame */
 
 	// loop over rows
-	for x := 0; x < ARENA_LENGTH; x++ {
+	for x := 0; x < lib.ARENA_LENGTH; x++ {
 		// loop over cells
-		for y := 0; y < ARENA_LENGTH; y++ {
+		for y := 0; y < lib.ARENA_LENGTH; y++ {
 			// initial char so we can be sure things are actually changing properly
 			arenaDraw[x][y] = "_"
 		}
@@ -115,31 +110,38 @@ func InitArena() {
 
 			// draw frame
 			DrawFrame()
-
-			// wall clock delay so we can see it working
-			//time.Sleep(10000000)
 		}
 	}()
+
+	/* Erase global coordinates in simulation */
+
+	// loop over rows
+	for x := 0; x < lib.ARENA_LENGTH; x++ {
+		// loop over cells
+		for y := 0; y < lib.ARENA_LENGTH; y++ {
+			// erase global coordinates so they can't be used
+			arena[x][y].G_X = -1
+			arena[x][y].G_Y = -1
+		}
+	}
 
 	/* Initial "spark" to start propagation */
 
 	// get coordinates of entry point
-	ex := ARENA_LENGTH / 2
-	ey := ARENA_LENGTH / 2
+	ex := lib.ARENA_LENGTH / 2
+	ey := lib.ARENA_LENGTH / 2
 
 	// send initial impulse to network
 	arena[ex][ey].Past <- 0
 }
 
-var frameCounter = 0
-
 func DrawFrame() {
 	fmt.Printf("Update %d\n", frameCounter)
 
 	// loop over rows
-	for x := 0; x < ARENA_LENGTH; x++ {
+	for x := 0; x < lib.ARENA_LENGTH; x++ {
 		// loop over columns
-		for y := 0; y < ARENA_LENGTH; y++ {
+		for y := 0; y < lib.ARENA_LENGTH; y++ {
 			// draw cell
 			fmt.Print(arenaDraw[y][x]) // swapping coordinates to transform from worldspace to screenspace
 
@@ -153,6 +155,9 @@ func DrawFrame() {
 
 	// increment counter
 	frameCounter++
+
+	// update sentinel value so the program doesn't die
+	lib.Sentinel = lib.SENTINEL_RESET
 
 	// end of frame
 	fmt.Println()
@@ -168,10 +173,10 @@ func descendantCoordinates(x int, y int) [][]int {
 
 	// toroidal bound checks (time)
 	if gy < 0 {
-		gy = ARENA_LENGTH - 1
+		gy = lib.ARENA_LENGTH - 1
 	}
 
-	if gy == ARENA_LENGTH {
+	if gy == lib.ARENA_LENGTH {
 		gy = 0
 	}
 
@@ -180,10 +185,10 @@ func descendantCoordinates(x int, y int) [][]int {
 
 	// toroidal bound checks (space)
 	if lx < 0 {
-		lx = ARENA_LENGTH - 1
+		lx = lib.ARENA_LENGTH - 1
 	}
 
-	if lx == ARENA_LENGTH {
+	if lx == lib.ARENA_LENGTH {
 		lx = 0
 	}
 
@@ -192,10 +197,10 @@ func descendantCoordinates(x int, y int) [][]int {
 
 	// toroidal bound checks (space)
 	if rx < 0 {
-		rx = ARENA_LENGTH - 1
+		rx = lib.ARENA_LENGTH - 1
 	}
 
-	if rx == ARENA_LENGTH {
+	if rx == lib.ARENA_LENGTH {
 		rx = 0
 	}
 
