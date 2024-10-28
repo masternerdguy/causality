@@ -7,7 +7,7 @@ import (
 // boundary for transition from "alive" to "dead"
 const FLUX_BOUNDARY = 1
 const FLUX_LOW = 0
-const FLUX_HIGH = 3
+const FLUX_HIGH = 1
 
 type Cell struct {
 	// global x position used for initial setup and rendering only

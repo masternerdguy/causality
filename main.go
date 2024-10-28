@@ -11,7 +11,7 @@ const RNG_SEED = 0
 
 // entry point
 func main() {
-	// single threading
+	// single core
 	runtime.GOMAXPROCS(1)
 
 	// seed rng for consistent results
@@ -25,6 +25,6 @@ func main() {
 
 	// don't exit
 	for {
-		time.Sleep(200)
+		time.Sleep(0)
 	}
 }

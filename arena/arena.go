@@ -4,7 +4,6 @@ import (
 	"flux/auto"
 	"flux/lib"
 	"fmt"
-	"time"
 )
 
 var arena = make([][]*auto.Cell, ARENA_LENGTH)
@@ -13,7 +12,9 @@ var arenaDraw = make([][]string, ARENA_LENGTH)
 var arenaUpdate = make(chan lib.ArenaChange[int, int, string])
 
 const ARENA_LENGTH = 5
-const ARENA_AREA = ARENA_LENGTH * ARENA_LENGTH
+
+// this program will eventually deadlock due to how go works - this just delays the inevitable long enough to be both useful and deterministic
+const PAST_CHANNEL_LENGTH = ARENA_LENGTH * ARENA_LENGTH * ARENA_LENGTH * ARENA_LENGTH
 
 func InitArena() {
 	/* Cell and "framebuffer" setup */
@@ -37,7 +38,7 @@ func InitArena() {
 				G_Y: y,
 
 				// initialize channel for causal past
-				Past: make(chan int, ARENA_AREA),
+				Past: make(chan int, PAST_CHANNEL_LENGTH),
 
 				// initialize empty future
 				Future: make([]chan int, 0),
@@ -116,7 +117,7 @@ func InitArena() {
 			DrawFrame()
 
 			// wall clock delay so we can see it working
-			time.Sleep(1000000000)
+			//time.Sleep(10000000)
 		}
 	}()
 
@@ -133,7 +134,7 @@ func InitArena() {
 var frameCounter = 0
 
 func DrawFrame() {
-	fmt.Printf("Frame %d\n", frameCounter)
+	fmt.Printf("Update %d\n", frameCounter)
 
 	// loop over rows
 	for x := 0; x < ARENA_LENGTH; x++ {
