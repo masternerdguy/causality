@@ -93,7 +93,7 @@ func InitArena() {
 			arena[x][y].Future = append(arena[x][y].Future, cr)
 
 			// initial value
-			arena[x][y].SetAge(int(localRnd.Float32() * lib.ARENA_LENGTH))
+			arena[x][y].SetAge(int(localRnd.Float32() * lib.MAX_CYCLES))
 
 			// start listening for input from the causal past
 			go func() {
