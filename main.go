@@ -4,12 +4,28 @@ import (
 	"flux/arena"
 	"flux/lib"
 	"fmt"
+	"os"
 	"runtime"
+	"strconv"
 	"time"
 )
 
 // entry point
 func main() {
+	// get args
+	cliArgs := os.Args[1:]
+
+	// ensure 3 args
+	if len(cliArgs) != 1 {
+		panic("No args! Please include <arena_length>")
+	}
+
+	// parse args
+	al, _ := strconv.Atoi(cliArgs[0])
+
+	// setup
+	lib.InitGlobals(al)
+
 	// use all cores
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
