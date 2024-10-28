@@ -10,7 +10,7 @@ import (
 
 // entry point
 func main() {
-	// single core
+	// use all cores
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// initialize arena and framebuffer

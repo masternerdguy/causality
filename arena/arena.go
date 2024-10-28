@@ -4,15 +4,27 @@ import (
 	"flux/auto"
 	"flux/lib"
 	"fmt"
+
+	"golang.org/x/exp/rand"
 )
 
+// where the simulation happens
 var arena = make([][]*auto.Cell, lib.ARENA_LENGTH)
+
+// intermediary to deliver updates to display
 var arenaBuffer = make([][]*auto.RenderCell, lib.ARENA_LENGTH)
+
+// what gets displayed
 var arenaDraw = make([][]string, lib.ARENA_LENGTH)
+
+// channel to update what gets displayed
 var arenaUpdate = make(chan lib.ArenaChange[int, int, string])
+
+// number of updates since start
 var frameCounter int64 = 0
 
-const ARENA_AREA = lib.ARENA_LENGTH * lib.ARENA_LENGTH
+// random number generator with deterministic seed
+var localRnd = rand.New(rand.NewSource(0))
 
 func InitArena() {
 	/* Cell and "framebuffer" setup */
@@ -36,7 +48,7 @@ func InitArena() {
 				G_Y: y,
 
 				// initialize channel for causal past
-				Past: make(chan int, ARENA_AREA+1),
+				Past: make(chan int, lib.ARENA_AREA+1),
 
 				// initialize empty future
 				Future: make([]chan int, 0),
@@ -63,8 +75,6 @@ func InitArena() {
 		}
 	}
 
-	/* Causal connectivity setup */
-
 	// loop over rows
 	for x := 0; x < lib.ARENA_LENGTH; x++ {
 		// loop over cells
@@ -81,6 +91,9 @@ func InitArena() {
 
 			arena[x][y].Future = append(arena[x][y].Future, cl)
 			arena[x][y].Future = append(arena[x][y].Future, cr)
+
+			// initial value
+			arena[x][y].SetAge(int(localRnd.Float32() * lib.ARENA_LENGTH))
 
 			// start listening for input from the causal past
 			go func() {

@@ -9,9 +9,6 @@ const FLUX_BOUNDARY = 1
 const FLUX_LOW = 0
 const FLUX_HIGH = 1
 
-// there's no point in exceeding the arena length in cycles - things should just be repeating by then
-const MAX_CYCLES = lib.ARENA_LENGTH
-
 type Cell struct {
 	// global x position used for initial setup and rendering only
 	G_X int
@@ -35,7 +32,13 @@ type Cell struct {
 	i_c int
 }
 
+func (c *Cell) SetAge(a int) {
+	// store "age" (elapsed cycles) internally
+	c.i_c = a
+}
+
 func (c *Cell) Listen() {
+	// loop
 	for {
 		// receive updates from causal past
 		v := <-c.Past
@@ -43,7 +46,7 @@ func (c *Cell) Listen() {
 		// increment cycle count
 		c.i_c++
 
-		// accumulate in internal state
+		// accumulate past in internal state
 		c.i_f += v
 
 		// toroidal bound check
@@ -82,7 +85,7 @@ func (c *Cell) Listen() {
 		c.Render <- sv
 
 		// exit if cycle count exceeded
-		if c.i_c > MAX_CYCLES {
+		if c.i_c > lib.MAX_CYCLES {
 			break
 		}
 	}

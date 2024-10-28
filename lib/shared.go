@@ -1,3 +1,5 @@
 package lib
 
 const ARENA_LENGTH = 15
+const ARENA_AREA = ARENA_LENGTH * ARENA_LENGTH
+const MAX_CYCLES = 5
