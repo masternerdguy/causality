@@ -16,16 +16,17 @@ func main() {
 	cliArgs := os.Args[1:]
 
 	// ensure 3 args
-	if len(cliArgs) != 2 {
-		panic("No args! Please include <arena_length> <seed>")
+	if len(cliArgs) != 3 {
+		panic("No args! Please include <arena_length> <elapsed seed> <flux seed>")
 	}
 
 	// parse args
 	al, _ := strconv.Atoi(cliArgs[0])
-	s, _ := strconv.Atoi(cliArgs[1])
+	es, _ := strconv.Atoi(cliArgs[1])
+	fs, _ := strconv.Atoi(cliArgs[2])
 
 	// setup
-	lib.InitGlobals(al, s)
+	lib.InitGlobals(al, es, fs)
 
 	// use all cores
 	runtime.GOMAXPROCS(runtime.NumCPU())

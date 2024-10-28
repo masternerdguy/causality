@@ -4,11 +4,6 @@ import (
 	"flux/lib"
 )
 
-// boundary for transition from "alive" to "dead"
-const FLUX_BOUNDARY = 1
-const FLUX_LOW = 0
-const FLUX_HIGH = 1
-
 type Cell struct {
 	// global x position used for initial setup and rendering only
 	G_X int
@@ -32,6 +27,11 @@ type Cell struct {
 	i_c int
 }
 
+func (c *Cell) SetFlux(f int) {
+	// store flux internally
+	c.i_f = f
+}
+
 func (c *Cell) SetAge(a int) {
 	// store "age" (elapsed cycles) internally
 	c.i_c = a
@@ -50,19 +50,19 @@ func (c *Cell) Listen() {
 		c.i_f += v
 
 		// toroidal bound check
-		if c.i_f < FLUX_LOW {
-			c.i_f = FLUX_HIGH
+		if c.i_f < lib.FLUX_LOW {
+			c.i_f = lib.FLUX_HIGH
 		}
 
-		if c.i_f > FLUX_HIGH {
-			c.i_f = FLUX_LOW
+		if c.i_f > lib.FLUX_HIGH {
+			c.i_f = lib.FLUX_LOW
 		}
 
 		// determine value to propagate to the causal future
 		fv := 0
 		var sv string
 
-		if c.i_f >= FLUX_BOUNDARY {
+		if c.i_f >= lib.FLUX_BOUNDARY {
 			// cell is "alive" - pass 1
 			fv = 1
 

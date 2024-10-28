@@ -21,7 +21,8 @@ var arenaDraw [][]string
 var arenaUpdate chan lib.ArenaChange[int, int, string]
 
 // seeded rng
-var localRnd *rand.Rand
+var elapsedRnd *rand.Rand
+var fluxRnd *rand.Rand
 
 // number of updates since start
 var frameCounter int64
@@ -31,7 +32,8 @@ func InitArena() {
 	arena = make([][]*auto.Cell, lib.ARENA_LENGTH)
 	arenaBuffer = make([][]*auto.RenderCell, lib.ARENA_LENGTH)
 	arenaDraw = make([][]string, lib.ARENA_LENGTH)
-	localRnd = rand.New(rand.NewSource(uint64(lib.SEED)))
+	elapsedRnd = rand.New(rand.NewSource(uint64(lib.ELAPSED_SEED)))
+	fluxRnd = rand.New(rand.NewSource(uint64(lib.FLUX_SEED)))
 
 	/* Cell and "framebuffer" setup */
 
@@ -61,7 +63,10 @@ func InitArena() {
 			}
 
 			// initial elapsed cycles for this cell
-			arena[x][y].SetAge(int(localRnd.Float32() * float32(lib.MAX_CYCLES)))
+			arena[x][y].SetAge(int(elapsedRnd.Float32() * float32(lib.MAX_CYCLES)))
+
+			// initial elapsed cycles for this cell
+			arena[x][y].SetFlux(int(fluxRnd.Float32()*lib.FLUX_BOUNDARY + 0.5))
 
 			// "framebuffer" display cell
 			arenaBuffer[x][y] = &auto.RenderCell{
