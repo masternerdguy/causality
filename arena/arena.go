@@ -4,6 +4,8 @@ import (
 	"flux/auto"
 	"flux/lib"
 	"fmt"
+
+	"golang.org/x/exp/rand"
 )
 
 // where the simulation happens
@@ -18,6 +20,9 @@ var arenaDraw [][]string
 // channel to update what gets displayed
 var arenaUpdate chan lib.ArenaChange[int, int, string]
 
+// seeded rng
+var localRnd *rand.Rand
+
 // number of updates since start
 var frameCounter int64
 
@@ -26,6 +31,7 @@ func InitArena() {
 	arena = make([][]*auto.Cell, lib.ARENA_LENGTH)
 	arenaBuffer = make([][]*auto.RenderCell, lib.ARENA_LENGTH)
 	arenaDraw = make([][]string, lib.ARENA_LENGTH)
+	localRnd = rand.New(rand.NewSource(uint64(lib.SEED)))
 
 	/* Cell and "framebuffer" setup */
 
@@ -53,6 +59,9 @@ func InitArena() {
 				// initialize empty future
 				Future: make([]chan int, 0),
 			}
+
+			// initial elapsed cycles for this cell
+			arena[x][y].SetAge(int(localRnd.Float32() * float32(lib.MAX_CYCLES)))
 
 			// "framebuffer" display cell
 			arenaBuffer[x][y] = &auto.RenderCell{
@@ -91,9 +100,6 @@ func InitArena() {
 
 			arena[x][y].Future = append(arena[x][y].Future, cl)
 			arena[x][y].Future = append(arena[x][y].Future, cr)
-
-			// initial value
-			arena[x][y].SetAge(1)
 
 			// start listening for input from the causal past
 			go func() {
