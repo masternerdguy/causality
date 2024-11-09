@@ -17,7 +17,7 @@ func main() {
 
 	// ensure 3 args
 	if len(cliArgs) != 1 {
-		panic("No args! Please include the path to your code file.")
+		panic("Usage: causality program.txt")
 	}
 
 	// parse args
