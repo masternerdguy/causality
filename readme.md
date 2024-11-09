@@ -134,3 +134,6 @@ You should see the output below:
     ked conureLike Alien: Res
     urrection but with a gree
     n-cheeked conureLike Alie
+
+# Invocation from Erlang
+If preferred, you can execute `causality` programs from an Erlang shell - please see the following documentation: https://www.erlang.org/doc/apps/stdlib/shell.html
