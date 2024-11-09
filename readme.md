@@ -94,4 +94,4 @@ To maximize your productivity with `causality`, I recommend the following:
 * For minimal self-interactivity, use even-length matrices (2x2, 4x4, 6x6, etc).
 * Negative numbers may be used to give cells "extra life".
 * "Barriers" may be created by initializing a cell with an initial signal counter value at or above the length of the matrix. This can be used to create causally disconnected regions within your program that are unreachable.
-* Similarly, an initial signal value just below the threshold may be used to execute certain regions "only once".
+* Similarly, an initial signal counter value just below the threshold may be used to execute certain regions "only once".
