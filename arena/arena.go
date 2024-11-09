@@ -4,8 +4,6 @@ import (
 	"flux/auto"
 	"flux/lib"
 	"fmt"
-
-	"golang.org/x/exp/rand"
 )
 
 // where the simulation happens
@@ -20,20 +18,14 @@ var arenaDraw [][]string
 // channel to update what gets displayed
 var arenaUpdate chan lib.ArenaChange[int, int, string]
 
-// seeded rng
-var elapsedRnd *rand.Rand
-var fluxRnd *rand.Rand
-
 // number of updates since start
 var frameCounter int64
 
-func InitArena() {
+func InitArena(p [][]int) {
 	/* Recompute vars */
 	arena = make([][]*auto.Cell, lib.ARENA_LENGTH)
 	arenaBuffer = make([][]*auto.RenderCell, lib.ARENA_LENGTH)
 	arenaDraw = make([][]string, lib.ARENA_LENGTH)
-	elapsedRnd = rand.New(rand.NewSource(uint64(lib.ELAPSED_SEED)))
-	fluxRnd = rand.New(rand.NewSource(uint64(lib.FLUX_SEED)))
 
 	/* Cell and "framebuffer" setup */
 
@@ -62,12 +54,6 @@ func InitArena() {
 				Future: make([]chan int, 0),
 			}
 
-			// initial elapsed cycles for this cell
-			arena[x][y].SetAge(int(elapsedRnd.Float32() * float32(lib.MAX_CYCLES)))
-
-			// initial elapsed cycles for this cell
-			arena[x][y].SetFlux(int(fluxRnd.Float32()*lib.FLUX_BOUNDARY + 0.5))
-
 			// "framebuffer" display cell
 			arenaBuffer[x][y] = &auto.RenderCell{
 				// global coordinates used only for diagnostic output
@@ -81,6 +67,10 @@ func InitArena() {
 
 			// hook update channel into cell so we can see the simulation
 			arena[x][y].Render = arenaBuffer[x][y].Update
+
+			// store cell age ("elapsed" cycle count when program starts)
+			arena[x][y].SetAge(p[x][y])
+			arena[x][y].SetFlux(0)
 
 			// start listening for cell changes
 			go func() {

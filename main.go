@@ -4,9 +4,9 @@ import (
 	"flux/arena"
 	"flux/lib"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
-	"strconv"
 	"time"
 )
 
@@ -16,23 +16,25 @@ func main() {
 	cliArgs := os.Args[1:]
 
 	// ensure 3 args
-	if len(cliArgs) != 3 {
-		panic("No args! Please include <arena_length> <elapsed seed> <flux seed>")
+	if len(cliArgs) != 1 {
+		panic("No args! Please include the path to your code file.")
 	}
 
 	// parse args
-	al, _ := strconv.Atoi(cliArgs[0])
-	es, _ := strconv.Atoi(cliArgs[1])
-	fs, _ := strconv.Atoi(cliArgs[2])
+	fp := cliArgs[0]
 
-	// setup
-	lib.InitGlobals(al, es, fs)
+	// load program
+	p := lib.ParseFile(fp)
+	log.Print(p)
+
+	// init globals
+	lib.InitGlobals(len(p))
 
 	// use all cores
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	// initialize arena and framebuffer
-	arena.InitArena()
+	arena.InitArena(p)
 
 	// draw empty frame
 	arena.DrawFrame()
@@ -53,7 +55,7 @@ func wait() {
 		// exit if underflowed - we are halted
 		if lib.Sentinel <= lib.SENTINEL_UNDERFLOW {
 			// notify user
-			fmt.Println("Sentinel value underflowed - program halted with above output!")
+			fmt.Println("Sentinel value underflowed - program halted with above output! If this causes problems, just remove it from the code in main.go :)")
 
 			// exit
 			break

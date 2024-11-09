@@ -40,6 +40,11 @@ func (c *Cell) SetAge(a int) {
 func (c *Cell) Listen() {
 	// loop
 	for {
+		// exit if cycle count exceeded
+		if c.i_c >= lib.MAX_CYCLES {
+			break
+		}
+
 		// receive updates from causal past
 		v := <-c.Past
 
@@ -83,11 +88,6 @@ func (c *Cell) Listen() {
 
 		// and upwards to the "framebuffer"
 		c.Render <- sv
-
-		// exit if cycle count exceeded
-		if c.i_c > lib.MAX_CYCLES {
-			break
-		}
 	}
 }
 
