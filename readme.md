@@ -22,7 +22,7 @@ Program execution began at coordinate (1,1). An `*` represents a "live" cell, wh
 
 Unlike Conway's Game of Life, in which the future state of a cell is determined by its immediate neighbours, `causality` is based on the idea that data flows from the causal past to the causal future. Each cell passes a signal (either a `1` or a `-1`) to its "lefthand" and "righthand" descendants. **This can be visualized as a light cone with only its edges.** A cell that is "alive" will pass `1`, while a cell that is dead will pass `-1`.
 
-Upon receiving a signal from the causal past, a cell will accumulate the value into its internal state (this is just addition) - which will change the cell's "live" / "dead" state. Each cell also has an additional internal counter that tracks the number of signals received, which is also incremented. Finally, the cell will signal its descendants. On the screen, propagation is right to left.
+Upon receiving a signal from the causal past, a cell will accumulate the value into its internal state (this is just toroidal addition) - which will change the cell's "live" / "dead" state. Each cell also has an additional internal counter that tracks the number of signals received, which is also incremented. Finally, the cell will signal its descendants. On the screen, propagation is right to left.
 
 **When a cell's internal signal counter reaches the length of the matrix, it will cease to propagate signals. This means that cells that were initialized with higher signal counters will participate in fewer program cycles.** Note that cells which are initialized with a signal counter at or above the length of the matrix will never participate. In the case of a 3x3 program, this value is `3`.
 
@@ -95,3 +95,42 @@ To maximize your productivity with `causality`, I recommend the following:
 * Negative numbers may be used to give cells "extra life".
 * "Barriers" may be created by initializing a cell with an initial signal counter value at or above the length of the matrix. This can be used to create causally disconnected regions within your program that are unreachable.
 * Similarly, an initial signal counter value just below the threshold may be used to execute certain regions "only once".
+
+# License
+`causality` is available under the standard `MIT` license! You could use it as the under-the-hood engine for your next app, don't let your dreams be dreams :)
+
+# Troubleshooting Guide
+Simply open a new `Dyalog APL` session and input the following:
+
+    text ← 'Like Alien: Resurrection but with a green-cheeked conure'
+    25 25 ⍴ text
+
+You should see the output below:
+
+    text ← 'Like Alien: Resurrection but with a green-cheeked conure'
+    25 25 ⍴ text
+    Like Alien: Resurrection 
+    but with a green-cheeked 
+    conureLike Alien: Resurre
+    ction but with a green-ch
+    eeked conureLike Alien: R
+    esurrection but with a gr
+    een-cheeked conureLike Al
+    ien: Resurrection but wit
+    h a green-cheeked conureL
+    ike Alien: Resurrection b
+    ut with a green-cheeked c
+    onureLike Alien: Resurrec
+    tion but with a green-che
+    eked conureLike Alien: Re
+    surrection but with a gre
+    en-cheeked conureLike Ali
+    en: Resurrection but with
+    a green-cheeked conureLi
+    ke Alien: Resurrection bu
+    t with a green-cheeked co
+    nureLike Alien: Resurrect
+    ion but with a green-chee
+    ked conureLike Alien: Res
+    urrection but with a gree
+    n-cheeked conureLike Alie
