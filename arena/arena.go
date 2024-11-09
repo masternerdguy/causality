@@ -157,7 +157,7 @@ func DrawFrame() {
 		// loop over columns
 		for y := 0; y < lib.ARENA_LENGTH; y++ {
 			// draw cell
-			fmt.Print(arenaDraw[y][x]) // swapping coordinates to transform from worldspace to screenspace
+			fmt.Print(arenaDraw[x][y])
 
 			// spacer
 			fmt.Print(" ")
