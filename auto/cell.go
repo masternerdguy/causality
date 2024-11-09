@@ -1,7 +1,7 @@
 package auto
 
 import (
-	"flux/lib"
+	"causality/lib"
 )
 
 type Cell struct {

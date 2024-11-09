@@ -1,8 +1,8 @@
 package arena
 
 import (
-	"flux/auto"
-	"flux/lib"
+	"causality/auto"
+	"causality/lib"
 	"fmt"
 )
 

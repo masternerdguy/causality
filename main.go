@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flux/arena"
-	"flux/lib"
+	"causality/arena"
+	"causality/lib"
 	"fmt"
 	"log"
 	"os"
